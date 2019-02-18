@@ -1,0 +1,23 @@
+variables:
+  TRIGGER_BRANCH: "apex-ci"
+  INTERNAL_DGX_PYTORCH_SSH: "ssh://git@gitlab-master.nvidia.com:${GITLAB_PORT}/dl/dgx/pytorch.git"
+
+stages:
+  - apex build and test
+
+apex-master:
+  stage: apex build and test
+  script:
+    - ORIGIN="${CI_REPOSITORY_URL##*@}" &&
+      git config --global user.name "${RUNNER_USER}" &&
+      git config --global user.email "${RUNNER_EMAIL}" &&
+      git config --global push.default simple &&
+      git clone ${INTERNAL_DGX_PYTORCH_SSH} --branch ${TRIGGER_BRANCH} &&
+      cd pytorch && git submodule update --init --remote && 
+      cd apex && git fetch origin && git checkout origin/${TRIGGER_BRANCH} &&
+      cd ../ && git add apex &&
+      FROM1=${ORIGIN#*/} && FROM=${FROM1%.git} &&
+      git commit -m "Trigger build from ${FROM} at ${CI_BUILD_REF}" &&
+      git push &&
+      cd ../ && rm -rf pytorch
+
