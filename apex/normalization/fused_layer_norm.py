@@ -8,7 +8,7 @@ import importlib
 class FusedLayerNormAffineFunction(torch.autograd.Function):
   def __init__(self, normalized_shape, eps=1e-6):
     global fused_layer_norm_cuda
-    fused_layer_norm_cuda = importlib.import_module("fused_layer_norm_cuda")
+    fused_layer_norm_cuda = importlib.import_module("layer_norm_cuda")
 
     self.normalized_shape = normalized_shape
     self.eps = eps
